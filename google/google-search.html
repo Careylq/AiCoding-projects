@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google</title>
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #202124;
+    background: #fff;
+  }
+
+  /* ===== Layout: full-height flex column ===== */
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* ===== Top Navigation ===== */
+  .top-nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 6px 15px;
+    height: 48px;
+    font-size: 13px;
+    line-height: 24px;
+    flex-shrink: 0;
+  }
+  .top-nav a {
+    color: rgba(0,0,0,0.87);
+    text-decoration: none;
+    padding: 0 8px;
+  }
+  .top-nav a:hover { text-decoration: underline; }
+
+  /* Apps grid icon (9-dot menu) */
+  .apps-btn {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    margin: 0 4px;
+  }
+  .apps-btn:hover { background: rgba(60,64,67,0.08); }
+  .apps-btn svg { width: 24px; height: 24px; fill: #5f6368; }
+
+  /* Sign-in button */
+  .signin-btn {
+    background: #1a73e8;
+    color: #fff;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 9px 23px;
+    font-size: 14px;
+    line-height: 16px;
+    cursor: pointer;
+    margin-left: 8px;
+    min-width: 96px;
+    text-align: center;
+    letter-spacing: 0.25px;
+  }
+  .signin-btn:hover {
+    background: #1b66c9;
+    box-shadow: 0 1px 2px 0 rgba(66,133,244,0.3), 0 1px 3px 1px rgba(66,133,244,0.15);
+  }
+  .signin-btn:active { background: #1a5cb4; }
+
+  /* ===== Main Content: centered, fills remaining space ===== */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 120px; /* offset upward slightly like original */
+    min-height: 0;
+  }
+
+  /* ===== Logo ===== */
+  .logo {
+    margin-bottom: 26px;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* ===== Search Form ===== */
+  .search-form {
+    width: 100%;
+    max-width: 584px;
+    padding: 0 20px;
+  }
+
+  /* Search box wrapper */
+  .search-box-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border: 1px solid #dfe1e5;
+    border-radius: 24px;
+    height: 46px;
+    padding: 0 8px 0 14px;
+    background: #fff;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .search-box-wrapper:hover {
+    box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+    border-color: rgba(223,225,229,0);
+  }
+  .search-box-wrapper:focus-within {
+    box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+    border-color: rgba(223,225,229,0);
+  }
+
+  /* Search icon */
+  .search-icon {
+    display: flex;
+    align-items: center;
+    padding-right: 13px;
+    flex-shrink: 0;
+  }
+  .search-icon svg { width: 20px; height: 20px; fill: #9aa0a6; }
+
+  /* Input field */
+  .search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    line-height: 46px;
+    color: rgba(0,0,0,0.87);
+    background: transparent;
+    min-width: 0;
+  }
+  .search-input::placeholder { color: #9aa0a6; }
+
+  /* Clear & voice buttons area */
+  .search-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    padding-left: 8px;
+  }
+  .action-btn {
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    padding: 0;
+  }
+  .clear-btn { display: none; }
+  .clear-btn.visible { display: flex; }
+  .action-btn:hover { background: rgba(60,64,67,0.08); }
+
+  /* ===== Buttons Row ===== */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-row button {
+    background-color: #f8f9fa;
+    border: 1px solid #f8f9fa;
+    border-radius: 4px;
+    color: #3c4043;
+    font-size: 14px;
+    padding: 0 16px;
+    height: 36px;
+    line-height: 27px;
+    cursor: pointer;
+    user-select: none;
+    min-width: 54px;
+    text-align: center;
+  }
+  .btn-row button:hover {
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    border-color: #dadce0;
+    color: #202124;
+  }
+  .btn-row button:active {
+    border-color: #4285f4;
+  }
+
+  /* ===== Footer ===== */
+  .page-footer {
+    background: #f2f2f2;
+    flex-shrink: 0;
+    font-size: 14px;
+    color: #70757a;
+  }
+  .footer-location {
+    padding: 15px 30px;
+    border-bottom: 1px solid #dadce0;
+    font-size: 15px;
+  }
+  .footer-links {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    flex-wrap: wrap;
+  }
+  .footer-links a {
+    color: #70757a;
+    text-decoration: none;
+    display: inline-block;
+    padding: 15px;
+    font-size: 14px;
+  }
+  .footer-links a:hover { text-decoration: underline; }
+  .footer-links__left, .footer-links__right {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  /* ===== Carbon / Language row (below search, above footer) ===== */
+  .lang-row {
+    font-size: small;
+    margin-top: 28px;
+    color: #3c4043;
+  }
+  .lang-row a {
+    color: #1a0dab;
+    text-decoration: none;
+    padding: 0 3px;
+  }
+  .lang-row a:hover { text-decoration: underline; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 650px) {
+    .top-nav { padding: 6px 8px; }
+    .top-nav a { padding: 0 5px; font-size: 12px; }
+    .signin-btn { padding: 7px 14px; min-width: auto; font-size: 13px; }
+
+    .search-form { max-width: 100%; padding: 0 16px; }
+    .search-box-wrapper { height: 44px; }
+    .search-input { font-size: 15px; }
+
+    .footer-links { justify-content: center; }
+    .footer-links__left, .footer-links__right { justify-content: center; }
+    .footer-location { text-align: center; padding: 12px 16px; }
+    .footer-links a { padding: 12px 10px; font-size: 13px; }
+  }
+
+  @media (max-width: 360px) {
+    .logo svg { width: 220px; }
+    .btn-row { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ===== Top Navigation ===== -->
+  <nav class="top-nav">
+    <a href="https://mail.google.com/" target="_blank">Gmail</a>
+    <a href="https://www.google.com/imghp" target="_blank">图片</a>
+    <!-- Apps grid icon -->
+    <button class="apps-btn" title="Google 应用" aria-label="Google 应用">
+      <svg viewBox="0 0 24 24"><path d="M6 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm12 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM6 20c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
+    </button>
+    <button class="signin-btn">登录</button>
+  </nav>
+
+  <!-- ===== Main Content ===== -->
+  <main class="main-content">
+
+    <!-- Google Logo (inline SVG) -->
+    <div class="logo">
+      <svg viewBox="0 0 272 92" width="272" height="92" aria-label="Google" role="img">
+        <path fill="#4285F4" d="M115.75 47.18c0 12.77-9.99 22.18-22.25 22.18s-22.25-9.41-22.25-22.18C71.25 34.32 81.24 25 93.5 25s22.25 9.32 22.25 22.18zm-9.74 0c0-7.98-5.79-13.44-12.51-13.44S80.99 39.2 80.99 47.18c0 7.9 5.79 13.44 12.51 13.44s12.51-5.55 12.51-13.44z"/>
+        <path fill="#EA4335" d="M163.75 47.18c0 12.77-9.99 22.18-22.25 22.18s-22.25-9.41-22.25-22.18c0-12.85 9.99-22.18 22.25-22.18s22.25 9.32 22.25 22.18zm-9.74 0c0-7.98-5.79-13.44-12.51-13.44s-12.51 5.46-12.51 13.44c0 7.9 5.79 13.44 12.51 13.44s12.51-5.55 12.51-13.44z"/>
+        <path fill="#FBBC05" d="M209.75 26.34v39.82c0 16.38-9.66 23.07-21.08 23.07-10.75 0-17.22-7.19-19.66-13.07l8.48-3.53c1.51 3.61 5.21 7.87 11.17 7.87 7.31 0 11.84-4.51 11.84-13v-3.19h-.34c-2.18 2.69-6.38 5.04-11.68 5.04-11.09 0-21.25-9.66-21.25-22.09 0-12.52 10.16-22.26 21.25-22.26 5.29 0 9.49 2.35 11.68 4.96h.34v-3.61h9.25zm-8.56 20.92c0-7.81-5.21-13.52-11.84-13.52-6.72 0-12.35 5.71-12.35 13.52 0 7.73 5.63 13.36 12.35 13.36 6.63 0 11.84-5.63 11.84-13.36z"/>
+        <path fill="#4285F4" d="M225 3v65h-9.5V3h9.5z"/>
+        <path fill="#34A853" d="M262.02 54.48l7.56 5.04c-2.44 3.61-8.32 9.83-18.48 9.83-12.6 0-22.01-9.74-22.01-22.18 0-13.19 9.49-22.18 20.92-22.18 11.51 0 17.14 9.16 18.98 14.11l1.01 2.52-29.65 12.28c2.27 4.45 5.8 6.72 10.75 6.72 4.96 0 8.4-2.44 10.92-6.14zm-23.27-7.98l19.82-8.23c-1.09-2.77-4.37-4.7-8.23-4.7-4.95 0-11.84 4.37-11.59 12.93z"/>
+        <path fill="#EA4335" d="M35.29 41.41V32H67c.31 1.64.47 3.58.47 5.68 0 7.06-1.93 15.79-8.15 22.01-6.05 6.3-13.78 9.66-24.02 9.66C16.32 69.35.36 53.89.36 34.91.36 15.93 16.32.47 35.3.47c10.5 0 17.98 4.12 23.6 9.49l-6.64 6.64c-4.03-3.78-9.49-6.72-16.97-6.72-13.86 0-24.7 11.17-24.7 25.03 0 13.86 10.84 25.03 24.7 25.03 8.99 0 14.11-3.61 17.39-6.89 2.66-2.66 4.41-6.46 5.1-11.65l-22.49.01z"/>
+      </svg>
+    </div>
+
+    <!-- Search Form -->
+    <form class="search-form" id="searchForm" action="https://www.google.com/search" method="get" target="_blank">
+      <div class="search-box-wrapper">
+        <!-- Magnifying glass icon -->
+        <span class="search-icon">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        </span>
+        <!-- Input -->
+        <input class="search-input" id="searchInput" type="text" name="q" autocomplete="off" maxlength="2048" title="Google 搜索" aria-label="Google 搜索" autofocus>
+        <!-- Clear + Voice actions -->
+        <div class="search-actions">
+          <button class="action-btn clear-btn" id="clearBtn" type="button" title="清除" aria-label="清除">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="#5f6368"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          </button>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="#4285f4" style="flex-shrink:0;cursor:default;">
+            <path d="M12 15c1.66 0 2.99-1.34 2.99-3L15 7c0-1.66-1.34-3-3-3S9 5.34 9 7v5c0 1.66 1.34 3 3 3zm6.08-3c-.42 0-.77.3-.83.71-.37 2.61-2.72 4.39-5.25 4.39s-4.88-1.77-5.25-4.39c-.06-.41-.42-.71-.83-.71-.52 0-.92.46-.85.97.46 3.52 3.33 6.17 6.93 6.55V22h2v-3.48c3.6-.38 6.47-3.03 6.93-6.55.07-.51-.33-.97-.85-.97z"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="btn-row">
+        <button type="submit">Google 搜索</button>
+        <button type="button" id="luckyBtn">手气不错</button>
+      </div>
+    </form>
+
+    <!-- Language switch row -->
+    <div class="lang-row">
+      Google 提供：
+      <a href="#">English</a>
+      <a href="#">日本語</a>
+      <a href="#">한국어</a>
+    </div>
+
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="page-footer">
+    <div class="footer-location">中国</div>
+    <div class="footer-links">
+      <div class="footer-links__left">
+        <a href="#">关于 Google</a>
+        <a href="#">广告</a>
+        <a href="#">商务</a>
+        <a href="#">搜索运作方式</a>
+      </div>
+      <div class="footer-links__right">
+        <a href="#">隐私权</a>
+        <a href="#">条款</a>
+        <a href="#">设置</a>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  (function () {
+    var input = document.getElementById('searchInput');
+    var clearBtn = document.getElementById('clearBtn');
+    var form = document.getElementById('searchForm');
+    var luckyBtn = document.getElementById('luckyBtn');
+
+    // Toggle clear button visibility
+    input.addEventListener('input', function () {
+      clearBtn.classList.toggle('visible', input.value.length > 0);
+    });
+
+    // Clear input
+    clearBtn.addEventListener('click', function () {
+      input.value = '';
+      input.focus();
+      clearBtn.classList.remove('visible');
+    });
+
+    // Handle "I'm Feeling Lucky" button
+    luckyBtn.addEventListener('click', function () {
+      var q = input.value.trim();
+      if (q) {
+        // "I'm Feeling Lucky" redirects to the first search result
+        window.open('https://www.google.com/search?q=' + encodeURIComponent(q) + '&btnI=1', '_blank');
+      } else {
+        // If empty, show a random doodle or just go to Google Doodles
+        window.open('https://www.google.com/doodles', '_blank');
+      }
+    });
+
+    // Submit on Enter already works natively with form+input[type=text]
+    // But ensure the form submits to the right target
+  })();
+</script>
+
+</body>
+</html>
